@@ -3,65 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>接龍 Solitaire</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>🎮 我的遊戲天地</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0c4ff;
+            margin-bottom: 40px;
+        }
+        
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .project-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .project-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        
+        .project-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .project-desc {
+            font-size: 0.9rem;
+            color: #8ecae6;
+        }
+        
+        .project-status {
+            margin-top: 15px;
+            padding: 5px 15px;
+            background: rgba(46, 204, 113, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .add-project {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .add-project:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .add-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="game-container">
-        <header class="game-header">
-            <h1>♠️ 接龍 ♣️</h1>
-            <div class="stats">
-                <span class="stat">⏱️ <span id="timer">00:00</span></span>
-                <span class="stat">🔄 <span id="moves">0</span></span>
-                <span class="stat">🏆 <span id="score">0</span></span>
-            </div>
-            <div class="buttons">
-                <button class="btn" onclick="newGame()">🎮 新遊戲</button>
-                <button class="btn" onclick="undo()">↩️ 悔棋</button>
-            </div>
-        </header>
-
-        <div class="game-area">
-            <!-- 收牌區 -->
-            <div class="foundations">
-                <div class="foundation" id="foundation-0" data-suit="♠">♠</div>
-                <div class="foundation" id="foundation-1" data-suit="♥">♥</div>
-                <div class="foundation" id="foundation-2" data-suit="♣">♣</div>
-                <div class="foundation" id="foundation-3" data-suit="♦">♦</div>
-            </div>
-
-            <!-- 牌堆與回收區 -->
-            <div class="stock-area">
-                <div class="stock" id="stock" onclick="drawCards()">
-                    <div class="card back"></div>
-                </div>
-                <div class="waste" id="waste"></div>
-            </div>
-
-            <!-- 遊戲牌疊 -->
-            <div class="tableau" id="tableau">
-                <div class="pile" id="pile-0"></div>
-                <div class="pile" id="pile-1"></div>
-                <div class="pile" id="pile-2"></div>
-                <div class="pile" id="pile-3"></div>
-                <div class="pile" id="pile-4"></div>
-                <div class="pile" id="pile-5"></div>
-                <div class="pile" id="pile-6"></div>
+    <div class="container">
+        <h1>🎮 我的遊戲天地</h1>
+        <p class="subtitle">Vibe Coding 專案集</p>
+        
+        <div class="projects">
+            <a href="aqualife/" class="project-card">
+                <div class="project-icon">🐠</div>
+                <div class="project-name">AquaLife</div>
+                <div class="project-desc">水族缸養魚遊戲</div>
+                <div class="project-status">🟢 運行中</div>
+            </a>
+            
+            <a href="solitaire/" class="project-card">
+                <div class="project-icon">♠️</div>
+                <div class="project-name">Solitaire</div>
+                <div class="project-desc">經典接龍遊戲</div>
+                <div class="project-status">🟢 運行中</div>
+            </a>
+            
+            <div class="project-card add-project">
+                <div class="add-icon">➕</div>
+                <div>新增專案</div>
             </div>
         </div>
-
-        <!-- 勝利訊息 -->
-        <div class="modal" id="win-modal">
-            <div class="modal-content">
-                <h2>🎉 恭喜過關！</h2>
-                <p>用時：<span id="final-time"></span></p>
-                <p>移動：<span id="final-moves"></span></p>
-                <p>得分：<span id="final-score"></span></p>
-                <button class="btn" onclick="newGame()">再玩一次</button>
-            </div>
-        </div>
+        
+        <footer>
+            <p>🏠 <a href="https://github.com/tingting76319/EnvTest" style="color: #a0c4ff;">GitHub 倉庫</a></p>
+        </footer>
     </div>
-
-    <script src="js/game.js"></script>
 </body>
 </html>
