@@ -3,104 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AquaLife - 水族缸養魚遊戲</title>
+    <title>接龍 Solitaire</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="game-container">
-        <!-- 頂部狀態欄 -->
-        <header class="status-bar">
-            <div class="resources">
-                <span class="resource" title="金幣">💰 <span id="coins">500</span></span>
-                <span class="resource" title="珍珠">💎 <span id="pearls">10</span></span>
-                <span class="resource" title="等級">📊 Lv.<span id="level">1</span></span>
-                <span class="resource" title="經驗值">✨ <span id="exp">0</span>/<span id="exp-needed">100</span></span>
+        <header class="game-header">
+            <h1>♠️ 接龍 ♣️</h1>
+            <div class="stats">
+                <span class="stat">⏱️ <span id="timer">00:00</span></span>
+                <span class="stat">🔄 <span id="moves">0</span></span>
+                <span class="stat">🏆 <span id="score">0</span></span>
             </div>
-            <div class="header-buttons">
-                <button class="btn" id="shop-btn">🏪 商店</button>
-                <button class="btn" id="settings-btn">⚙️ 設定</button>
+            <div class="buttons">
+                <button class="btn" onclick="newGame()">🎮 新遊戲</button>
+                <button class="btn" onclick="undo()">↩️ 悔棋</button>
             </div>
         </header>
 
-        <!-- 水族箱區域 -->
-        <main class="aquarium" id="aquarium">
-            <div class="water">
-                <!-- 水波效果 -->
-                <div class="waves"></div>
-                <div class="waves waves-2"></div>
-                
-                <!-- 魚群會在這裡動態生成 -->
-                <div class="fish-container" id="fish-container"></div>
-                
-                <!-- 裝飾品 -->
-                <div class="decorations" id="decorations">
-                    <div class="decoration sand"></div>
-                    <div class="decoration seaweed seaweed-1">🌿</div>
-                    <div class="decoration seaweed seaweed-2">🌿</div>
-                    <div class="decoration rock rock-1">🪨</div>
-                    <div class="decoration rock rock-2">🪨</div>
-                </div>
+        <div class="game-area">
+            <!-- 收牌區 -->
+            <div class="foundations">
+                <div class="foundation" id="foundation-0" data-suit="♠">♠</div>
+                <div class="foundation" id="foundation-1" data-suit="♥">♥</div>
+                <div class="foundation" id="foundation-2" data-suit="♣">♣</div>
+                <div class="foundation" id="foundation-3" data-suit="♦">♦</div>
             </div>
-        </main>
 
-        <!-- 底部控制欄 -->
-        <footer class="control-bar">
-            <div class="water-quality">
-                <span>水質：</span>
-                <div class="quality-bar">
-                    <div class="quality-fill" id="water-quality" style="width: 80%"></div>
+            <!-- 牌堆與回收區 -->
+            <div class="stock-area">
+                <div class="stock" id="stock" onclick="drawCards()">
+                    <div class="card back"></div>
                 </div>
-                <span id="water-quality-text">80%</span>
+                <div class="waste" id="waste"></div>
             </div>
-            <div class="actions">
-                <button class="action-btn" id="feed-btn" title="餵食">🐟 餵食</button>
-                <button class="action-btn" id="clean-btn" title="換水">💧 換水</button>
-                <button class="action-btn" id="clear-btn" title="清理">🧹 清理</button>
-                <button class="action-btn" id="sell-btn" title="撈魚">🕸️ 撈魚</button>
-            </div>
-        </footer>
-    </div>
 
-    <!-- 商店Modal -->
-    <div class="modal" id="shop-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🏪 商店</h2>
-                <button class="close-btn" id="close-shop">&times;</button>
+            <!-- 遊戲牌疊 -->
+            <div class="tableau" id="tableau">
+                <div class="pile" id="pile-0"></div>
+                <div class="pile" id="pile-1"></div>
+                <div class="pile" id="pile-2"></div>
+                <div class="pile" id="pile-3"></div>
+                <div class="pile" id="pile-4"></div>
+                <div class="pile" id="pile-5"></div>
+                <div class="pile" id="pile-6"></div>
             </div>
-            <div class="shop-tabs">
-                <button class="tab-btn active" data-tab="fish">🐟 魚類</button>
-                <button class="tab-btn" data-tab="food">🍞 飼料</button>
-                <button class="tab-btn" data-tab="decor">🎨 裝飾</button>
-            </div>
-            <div class="shop-items" id="shop-items">
-                <!-- 商品會在這裡動態生成 -->
+        </div>
+
+        <!-- 勝利訊息 -->
+        <div class="modal" id="win-modal">
+            <div class="modal-content">
+                <h2>🎉 恭喜過關！</h2>
+                <p>用時：<span id="final-time"></span></p>
+                <p>移動：<span id="final-moves"></span></p>
+                <p>得分：<span id="final-score"></span></p>
+                <button class="btn" onclick="newGame()">再玩一次</button>
             </div>
         </div>
     </div>
 
-    <!-- 設定Modal -->
-    <div class="modal" id="settings-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚙️ 設定</h2>
-                <button class="close-btn" id="close-settings">&times;</button>
-            </div>
-            <div class="settings-content">
-                <button class="btn" id="save-game">💾 儲存遊戲</button>
-                <button class="btn" id="load-game">📂 讀取存檔</button>
-                <button class="btn btn-danger" id="reset-game">🗑️ 重置遊戲</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 訊息提示 -->
-    <div class="toast" id="toast"></div>
-
-    <script src="js/fish.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/shop.js"></script>
-    <script src="js/ui.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html>

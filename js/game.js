@@ -1,168 +1,385 @@
-// AquaLife - 遊戲主邏輯
+// Solitaire - 接龍遊戲
 
-// 遊戲狀態
-let gameState = {
-    coins: 500,
-    pearls: 10,
-    exp: 0,
-    level: 1,
-    fish: [],
-    decorations: [],
-    tankLevel: 1,
-    waterQuality: 80,
-    totalEarnings: 0,
-    playTime: 0,
-    startTime: Date.now(),
-    achievements: []
-};
+const SUITS = ['♠', '♥', '♣', '♦'];
+const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
-// 遊戲循環定時器
-let gameLoopInterval = null;
-let incomeInterval = null;
-let autoSaveInterval = null;
+let deck = [];
+let piles = [[], [], [], [], [], [], []];
+let foundations = [[], [], [], []];
+let waste = [];
+let stock = [];
+
+let timer = 0;
+let timerInterval = null;
+let moves = 0;
+let score = 0;
+let history = [];
 
 // 初始化遊戲
 function initGame() {
-    // 嘗試讀取存檔
-    const savedData = loadGame();
-    if (savedData) {
-        loadGameState(savedData);
-    }
-    
-    // 初始化UI
-    initUI();
-    initShop();
-    
-    // 渲染遊戲
-    renderAll();
-    
-    // 啟動遊戲循環
-    startGameLoop();
-    
-    showToast('🐠 AquaLife 歡迎您！');
+    newGame();
 }
 
-// 啟動遊戲循環
-function startGameLoop() {
-    // 每秒更新遊戲狀態
-    gameLoopInterval = setInterval(updateGame, 1000);
+// 新遊戲
+function newGame() {
+    // 重置變數
+    deck = [];
+    piles = [[], [], [], [], [], [], []];
+    foundations = [[], [], [], []];
+    waste = [];
+    history = [];
+    moves = 0;
+    score = 0;
+    timer = 0;
     
-    // 每3秒產生收入
-    incomeInterval = setInterval(generateIncome, 3000);
+    // 停止計時
+    if (timerInterval) clearInterval(timerInterval);
     
-    // 每30秒自動儲存
-    autoSaveInterval = setInterval(autoSave, 30000);
+    // 創建牌組
+    createDeck();
+    shuffleDeck();
+    dealCards();
+    
+    // 開始計時
+    timerInterval = setInterval(() => {
+        timer++;
+        updateTimer();
+    }, 1000);
+    
+    // 渲染
+    renderGame();
+    updateStats();
+    
+    // 隱藏勝利Modal
+    document.getElementById('win-modal').classList.remove('show');
 }
 
-// 更新遊戲狀態
-function updateGame() {
-    let hasChanges = false;
-    
-    gameState.fish.forEach((fish, index) => {
-        const fishData = getFishData(fish.fishId);
-        if (!fishData) return;
-        
-        // 年齡增加
-        fish.age += 1000;
-        
-        // 飢餓度下降
-        fish.hunger = Math.max(0, fish.hunger - fishData.hungerRate * 0.5);
-        
-        // 幸福度下降（根據水質和飢餓度）
-        let happinessDrop = 1;
-        if (fish.hunger < 30) happinessDrop += 2;
-        if (gameState.waterQuality < 50) happinessDrop += 2;
-        fish.happiness = Math.max(0, fish.happiness - happinessDrop);
-        
-        // 檢查是否死亡
-        if (fish.hunger <= 0 || fish.happiness <= 0 || fish.age >= fishData.lifespan) {
-            // 魚死亡
-            const fishDiv = document.getElementById(fish.id);
-            if (fishDiv) {
-                fishDiv.classList.add('dying');
-                setTimeout(() => {
-                    gameState.fish.splice(index, 1);
-                    renderFish();
-                    showToast(`${fishData.name} 去世了...`);
-                }, 2000);
-            }
-            hasChanges = true;
-        }
-        
-        // 檢查成長
-        if (!fish.isAdult && fish.age >= fishData.growthTime) {
-            fish.isAdult = true;
-            gameState.exp += fishData.exp;
-            checkLevelUp();
-            showToast(`${fishData.name} 長大了！`);
-            hasChanges = true;
-        }
-        
-        // 魚的移動
-        if (Math.random() > 0.7) {
-            fish.x = Math.max(5, Math.min(90, fish.x + (Math.random() - 0.5) * 10));
-            fish.y = Math.max(10, Math.min(80, fish.y + (Math.random() - 0.5) * 10));
-            hasChanges = true;
-        }
-    });
-    
-    // 水質自然下降
-    gameState.waterQuality = Math.max(0, gameState.waterQuality - 0.5);
-    
-    // 裝飾品效果
-    gameState.decorations.forEach(decor => {
-        if (decor.waterQuality) {
-            gameState.waterQuality = Math.min(100, gameState.waterQuality + decor.waterQuality * 0.01);
-        }
-        if (decor.happiness) {
-            gameState.fish.forEach(fish => {
-                fish.happiness = Math.min(100, fish.happiness + decor.happiness * 0.01);
+// 創建牌組
+function createDeck() {
+    deck = [];
+    SUITS.forEach((suit, suitIndex) => {
+        RANKS.forEach((rank, rankIndex) => {
+            deck.push({
+                suit: suit,
+                rank: rank,
+                value: rankIndex + 1,
+                color: (suit === '♥' || suit === '♦') ? 'red' : 'black',
+                faceUp: false
             });
+        });
+    });
+}
+
+// 洗牌
+function shuffleDeck() {
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+}
+
+// 發牌
+function dealCards() {
+    // 發到7個牌疊
+    for (let i = 0; i < 7; i++) {
+        for (let j = 0; j <= i; j++) {
+            let card = deck.pop();
+            if (j === i) card.faceUp = true;
+            piles[i].push(card);
         }
-    });
+    }
     
-    // 更新UI
-    updateUI();
+    // 剩餘的放到牌堆
+    stock = deck;
+}
+
+// 翻牌
+function drawCards() {
+    if (stock.length === 0) {
+        // 回收廢牌
+        stock = waste.reverse().map(card => ({ ...card, faceUp: false }));
+        waste = [];
+    } else {
+        // 翻3張牌
+        for (let i = 0; i < 3 && stock.length > 0; i++) {
+            let card = stock.pop();
+            card.faceUp = true;
+            waste.push(card);
+        }
+    }
     
-    // 重新渲染魚（位置移動）
-    if (hasChanges) {
-        renderFish();
+    moves++;
+    saveHistory();
+    renderGame();
+    updateStats();
+}
+
+// 渲染遊戲
+function renderGame() {
+    renderStock();
+    renderWaste();
+    renderPiles();
+    renderFoundations();
+}
+
+// 渲染牌堆
+function renderStock() {
+    const stockEl = document.getElementById('stock');
+    stockEl.innerHTML = stock.length > 0 
+        ? '<div class="card back"></div>' 
+        : '<span style="font-size:2rem;opacity:0.5">↻</span>';
+}
+
+// 渲染廢牌區
+function renderWaste() {
+    const wasteEl = document.getElementById('waste');
+    wasteEl.innerHTML = '';
+    
+    if (waste.length > 0) {
+        const card = waste[waste.length - 1];
+        const cardEl = createCardElement(card);
+        cardEl.draggable = true;
+        cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'waste', waste.length - 1));
+        wasteEl.appendChild(cardEl);
     }
 }
 
-// 產生收入
-function generateIncome() {
-    let totalIncome = 0;
-    
-    gameState.fish.forEach(fish => {
-        const fishData = getFishData(fish.fishId);
-        if (!fishData || !fish.isAdult) return;
+// 渲染牌疊
+function renderPiles() {
+    for (let i = 0; i < 7; i++) {
+        const pileEl = document.getElementById(`pile-${i}`);
+        pileEl.innerHTML = '';
         
-        // 收入基於幸福度和飢餓度
-        const happinessMultiplier = fish.happiness / 100;
-        const hungerMultiplier = fish.hunger / 100;
+        piles[i].forEach((card, index) => {
+            const cardEl = createCardElement(card);
+            cardEl.style.top = (index * 25) + 'px';
+            
+            if (card.faceUp) {
+                cardEl.draggable = true;
+                cardEl.addEventListener('dragstart', (e) => handleDragStart(e, `pile-${i}`, index));
+            }
+            
+            pileEl.appendChild(cardEl);
+        });
         
-        totalIncome += fishData.income * happinessMultiplier * hungerMultiplier * 0.3;
-    });
-    
-    if (totalIncome > 0) {
-        gameState.coins += totalIncome;
-        gameState.totalEarnings += totalIncome;
-        updateUI();
+        // 放置區
+        pileEl.addEventListener('dragover', (e) => e.preventDefault());
+        pileEl.addEventListener('drop', (e) => handleDrop(e, `pile-${i}`));
     }
 }
 
-// 停止遊戲循環
-function stopGameLoop() {
-    if (gameLoopInterval) clearInterval(gameLoopInterval);
-    if (incomeInterval) clearInterval(incomeInterval);
-    if (autoSaveInterval) clearInterval(autoSaveInterval);
+// 渲染收牌區
+function renderFoundations() {
+    for (let i = 0; i < 4; i++) {
+        const foundationEl = document.getElementById(`foundation-${i}`);
+        const suit = SUITS[i];
+        foundationEl.textContent = suit;
+        foundationEl.dataset.suit = suit;
+        
+        if (foundations[i].length > 0) {
+            const card = foundations[i][foundations[i].length - 1];
+            const cardEl = createCardElement(card);
+            foundationEl.appendChild(cardEl);
+        }
+        
+        foundationEl.addEventListener('dragover', (e) => e.preventDefault());
+        foundationEl.addEventListener('drop', (e) => handleFoundationDrop(e, i));
+    }
 }
 
-// 頁面載入完成後初始化
+// 創建紙牌元素
+function createCardElement(card) {
+    const cardEl = document.createElement('div');
+    cardEl.className = `card ${card.color}`;
+    
+    if (!card.faceUp) {
+        cardEl.classList.add('back');
+        return cardEl;
+    }
+    
+    cardEl.innerHTML = `
+        <span class="card-top">${card.rank}${card.suit}</span>
+        <span class="card-center">${card.suit}</span>
+        <span class="card-bottom">${card.rank}${card.suit}</span>
+    `;
+    
+    return cardEl;
+}
+
+// 拖放處理
+let dragData = null;
+
+function handleDragStart(e, source, index) {
+    dragData = { source, index };
+    e.target.classList.add('dragging');
+}
+
+function handleDrop(e, pileIndex) {
+    e.preventDefault();
+    
+    if (!dragData) return;
+    
+    const pileNum = parseInt(pileIndex.split('-')[1]);
+    let sourcePile, sourceCards;
+    
+    // 取得來源牌
+    if (dragData.source === 'waste') {
+        sourceCards = [waste[waste.length - 1]];
+    } else {
+        const sourcePileNum = parseInt(dragData.source.split('-')[1]);
+        sourcePile = piles[sourcePileNum];
+        sourceCards = sourcePile.slice(dragData.index);
+    }
+    
+    const targetCard = piles[pileNum].length > 0 
+        ? piles[pileNum][piles[pileNum].length - 1] 
+        : null;
+    
+    // 檢查是否可放置
+    if (canPlaceOnPile(sourceCards[0], targetCard)) {
+        // 移動牌
+        if (dragData.source === 'waste') {
+            waste.pop();
+        } else {
+            const sourcePileNum = parseInt(dragData.source.split('-')[1]);
+            piles[sourcePileNum].splice(dragData.index);
+            
+            // 翻開下一張
+            if (piles[sourcePileNum].length > 0) {
+                piles[sourcePileNum][piles[sourcePileNum].length - 1].faceUp = true;
+            }
+        }
+        
+        piles[pileNum].push(...sourceCards);
+        moves++;
+        score += 5;
+        saveHistory();
+        
+        renderGame();
+        updateStats();
+        checkWin();
+    }
+    
+    dragData = null;
+}
+
+function handleFoundationDrop(e, foundationIndex) {
+    e.preventDefault();
+    
+    if (!dragData) return;
+    
+    let card;
+    
+    if (dragData.source === 'waste') {
+        card = waste[waste.length - 1];
+    } else {
+        const sourcePileNum = parseInt(dragData.source.split('-')[1]);
+        card = piles[sourcePileNum][piles[sourcePileNum].length - 1];
+    }
+    
+    // 檢查是否可收牌
+    const suit = SUITS[foundationIndex];
+    if (card.suit === suit) {
+        if (foundations[foundationIndex].length === 0) {
+            if (card.value === 1) {
+                placeOnFoundation(card, foundationIndex);
+            }
+        } else {
+            const topCard = foundations[foundationIndex][foundations[foundationIndex].length - 1];
+            if (card.value === topCard.value + 1) {
+                placeOnFoundation(card, foundationIndex);
+            }
+        }
+    }
+    
+    dragData = null;
+}
+
+function placeOnFoundation(card, foundationIndex) {
+    if (dragData.source === 'waste') {
+        waste.pop();
+    } else {
+        const sourcePileNum = parseInt(dragData.source.split('-')[1]);
+        piles[sourcePileNum].pop();
+        
+        if (piles[sourcePileNum].length > 0) {
+            piles[sourcePileNum][piles[sourcePileNum].length - 1].faceUp = true;
+        }
+    }
+    
+    foundations[foundationIndex].push(card);
+    moves++;
+    score += 10;
+    saveHistory();
+    
+    renderGame();
+    updateStats();
+    checkWin();
+}
+
+// 檢查是否可放置
+function canPlaceOnPile(card, targetCard) {
+    if (!targetCard) return card.value === 13; // King on empty
+    
+    return card.color !== targetCard.color && card.value === targetCard.value - 1;
+}
+
+// 悔棋
+function undo() {
+    if (history.length === 0) return;
+    
+    const state = history.pop();
+    piles = state.piles;
+    waste = state.waste;
+    foundations = state.foundations;
+    stock = state.stock;
+    moves = state.moves;
+    score = Math.max(0, score - 10);
+    
+    renderGame();
+    updateStats();
+}
+
+// 儲存歷史
+function saveHistory() {
+    history.push({
+        piles: JSON.parse(JSON.stringify(piles)),
+        waste: JSON.parse(JSON.stringify(waste)),
+        foundations: JSON.parse(JSON.stringify(foundations)),
+        stock: JSON.parse(JSON.stringify(stock)),
+        moves: moves
+    });
+    
+    if (history.length > 20) history.shift();
+}
+
+// 更新計時器
+function updateTimer() {
+    const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+    const seconds = (timer % 60).toString().padStart(2, '0');
+    document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+}
+
+// 更新統計
+function updateStats() {
+    document.getElementById('moves').textContent = moves;
+    document.getElementById('score').textContent = score;
+}
+
+// 勝利檢查
+function checkWin() {
+    const total = foundations.reduce((sum, f) => sum + f.length, 0);
+    
+    if (total === 52) {
+        clearInterval(timerInterval);
+        
+        document.getElementById('final-time').textContent = document.getElementById('timer').textContent;
+        document.getElementById('final-moves').textContent = moves;
+        document.getElementById('final-score').textContent = score;
+        
+        document.getElementById('win-modal').classList.add('show');
+    }
+}
+
+// 頁面載入
 document.addEventListener('DOMContentLoaded', initGame);
-
-// 頁面關閉前儲存
-window.addEventListener('beforeunload', () => {
-    saveGame();
-});

@@ -1,14 +1,10 @@
-/* AquaLife - 寫實風水族缸樣式 */
+/* Solitaire - 接龍遊戲樣式 */
 
 :root {
-    --deep-blue: #0a1628;
-    --ocean-blue: #1a3a5c;
-    --light-blue: #2d5a87;
-    --sand: #d4a574;
-    --coral: #ff6b6b;
-    --gold: #ffd700;
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --green-felt: #1b5e20;
+    --card-width: 70px;
+    --card-height: 100px;
+    --card-radius: 8px;
 }
 
 * {
@@ -19,56 +15,49 @@
 
 body {
     font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
-    background: linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #0a1628 100%);
+    background: linear-gradient(135deg, #0d4d0d 0%, #1b5e20 50%, #0a3d0a 100%);
     min-height: 100vh;
     color: #fff;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .game-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
     padding: 10px;
 }
 
-/* 頂部狀態欄 */
-.status-bar {
+/* 標題區 */
+.game-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.resources {
+.game-header h1 {
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.stats {
     display: flex;
     gap: 20px;
-    flex-wrap: wrap;
 }
 
-.resource {
+.stat {
     font-size: 1.1rem;
-    padding: 8px 15px;
-    background: rgba(0, 0, 0, 0.3);
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
-.resource span {
-    font-weight: bold;
-    color: var(--gold);
-}
-
-.header-buttons {
+.buttons {
     display: flex;
     gap: 10px;
 }
@@ -77,7 +66,7 @@ body {
     padding: 10px 20px;
     border: none;
     border-radius: 10px;
-    background: var(--light-blue);
+    background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
     color: #fff;
     cursor: pointer;
     font-size: 1rem;
@@ -85,223 +74,130 @@ body {
 }
 
 .btn:hover {
-    background: var(--ocean-blue);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.btn-danger {
-    background: #c0392b;
+/* 遊戲區域 */
+.game-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.btn-danger:hover {
-    background: #a93226;
+/* 收牌區與牌堆 */
+.stock-area, .foundations {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
 }
 
-/* 水族箱 */
-.aquarium {
-    flex: 1;
-    border-radius: 20px;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 
-                inset 0 0 100px rgba(45, 90, 135, 0.3);
+.foundations {
+    margin-bottom: 10px;
 }
 
-.water {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(180deg, 
-        #1e3a5f 0%, 
-        #152d4a 30%, 
-        #0d1f35 70%, 
-        #071520 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-/* 水波動畫 */
-.waves {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 30px;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="rgba(255,255,255,0.1)" d="M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z"/></svg>');
-    background-size: 50% 100%;
-    animation: waves 8s linear infinite;
-}
-
-.waves-2 {
-    top: 5px;
-    opacity: 0.5;
-    animation: waves 12s linear infinite reverse;
-}
-
-@keyframes waves {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-
-/* 魚群容器 */
-.fish-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-}
-
-/* 魚 */
-.fish {
-    position: absolute;
-    font-size: 2rem;
-    transition: transform 0.5s ease;
-    animation: swim 10s ease-in-out infinite;
-    cursor: pointer;
-    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.4));
-}
-
-.fish:hover {
-    transform: scale(1.2);
-}
-
-.fish.eating {
-    animation: eat 0.5s ease-in-out;
-}
-
-.fish.dying {
-    animation: die 2s ease-out forwards;
-    opacity: 0.5;
-    filter: grayscale(1);
-}
-
-@keyframes swim {
-    0%, 100% { transform: translateX(0) scaleX(1); }
-    25% { transform: translateX(20px) translateY(-10px) scaleX(1); }
-    50% { transform: translateX(40px) translateY(5px) scaleX(1); }
-    75% { transform: translateX(20px) translateY(-5px) scaleX(1); }
-}
-
-.fish.swim-left {
-    animation-direction: reverse;
-    transform: scaleX(-1);
-}
-
-@keyframes eat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-}
-
-@keyframes die {
-    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
-    100% { opacity: 0; transform: translateY(50px) rotate(90deg); }
-}
-
-/* 裝飾品 */
-.decorations {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-.decoration {
-    position: absolute;
-    pointer-events: none;
-}
-
-.sand {
-    bottom: 0;
-    width: 100%;
-    height: 40px;
-    background: linear-gradient(180deg, transparent, rgba(212, 165, 116, 0.6));
-    border-radius: 50% 50% 0 0 / 20px 20px 0 0;
-}
-
-.seaweed {
-    font-size: 2.5rem;
-    bottom: 30px;
-    animation: sway 3s ease-in-out infinite;
-}
-
-.seaweed-1 { left: 10%; animation-delay: 0s; }
-.seaweed-2 { right: 15%; animation-delay: 1s; }
-
-@keyframes sway {
-    0%, 100% { transform: rotate(-5deg); }
-    50% { transform: rotate(5deg); }
-}
-
-.rock {
-    font-size: 2rem;
-    bottom: 20px;
-}
-
-.rock-1 { left: 25%; }
-.rock-2 { right: 30%; }
-
-/* 底部控制欄 */
-.control-bar {
-    padding: 15px 20px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 15px;
-    margin-top: 10px;
-}
-
-.water-quality {
+.foundation, .stock, .waste {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--card-radius);
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.quality-bar {
-    flex: 1;
-    height: 15px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.quality-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
-    border-radius: 10px;
-    transition: width 0.5s ease;
-}
-
-.actions {
-    display: flex;
-    gap: 10px;
     justify-content: center;
-    flex-wrap: wrap;
+    font-size: 2rem;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
 }
 
-.action-btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    background: var(--ocean-blue);
-    color: #fff;
+/* 牌疊區 */
+.tableau {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    min-height: 400px;
+}
+
+.pile {
+    width: var(--card-width);
+    min-height: var(--card-height);
+    position: relative;
+}
+
+/* 紙牌 */
+.card {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: #fff;
+    border-radius: var(--card-radius);
+    position: absolute;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+    font-weight: bold;
+    user-select: none;
 }
 
-.action-btn:hover {
-    background: var(--light-blue);
-    transform: translateY(-2px);
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    z-index: 100;
 }
 
-.action-btn:active {
-    transform: translateY(0);
+.card.dragging {
+    opacity: 0.8;
+    z-index: 1000;
 }
 
-/* Modal */
+.card.red {
+    color: #e53935;
+}
+
+.card.black {
+    color: #212121;
+}
+
+/* 牌背 */
+.card.back {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 50%, #1565c0 100%);
+    border: 3px solid #fff;
+}
+
+.card.back::after {
+    content: '♦';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* 牌面數字 */
+.card-top, .card-bottom {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.card-bottom {
+    transform: rotate(180deg);
+}
+
+.card-center {
+    font-size: 1.8rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 牌疊重疊 */
+.pile .card {
+    position: absolute;
+}
+
+/* 勝利 Modal */
 .modal {
     display: none;
     position: fixed;
@@ -309,8 +205,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
     align-items: center;
     justify-content: center;
 }
@@ -320,158 +216,44 @@ body {
 }
 
 .modal-content {
-    background: linear-gradient(180deg, #1b263b 0%, #0d1b2a 100%);
+    background: linear-gradient(180deg, #1b5e20 0%, #0d4d0d 100%);
     border-radius: 20px;
-    padding: 20px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-    border: 1px solid var(--glass-border);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--glass-border);
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 2rem;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.close-btn:hover {
-    color: var(--coral);
-}
-
-/* 商店 */
-.shop-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: var(--ocean-blue);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.tab-btn.active {
-    background: var(--light-blue);
-    box-shadow: 0 0 10px rgba(45, 90, 135, 0.5);
-}
-
-.shop-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-}
-
-.shop-item {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 15px;
-    padding: 15px;
+    padding: 40px;
     text-align: center;
-    transition: all 0.3s;
+    border: 3px solid #4caf50;
 }
 
-.shop-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+.modal-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
 }
 
-.shop-item .icon {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.shop-item .name {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.shop-item .price {
-    color: var(--gold);
-    margin-bottom: 10px;
-}
-
-.shop-item .buy-btn {
-    width: 100%;
-    padding: 8px;
-    border: none;
-    border-radius: 8px;
-    background: var(--light-blue);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.shop-item .buy-btn:hover {
-    background: var(--ocean-blue);
-}
-
-.shop-item .buy-btn:disabled {
-    background: #555;
-    cursor: not-allowed;
-}
-
-/* 設定 */
-.settings-content {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* 訊息提示 */
-.toast {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 15px 30px;
-    border-radius: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 2000;
-}
-
-.toast.show {
-    opacity: 1;
+.modal-content p {
+    font-size: 1.2rem;
+    margin: 10px 0;
 }
 
 /* 響應式 */
-@media (max-width: 600px) {
-    .status-bar {
+@media (max-width: 700px) {
+    :root {
+        --card-width: 45px;
+        --card-height: 65px;
+    }
+    
+    .game-header {
         flex-direction: column;
-        gap: 10px;
+        text-align: center;
     }
     
-    .resources {
-        justify-content: center;
+    .card-top, .card-bottom {
+        font-size: 0.7rem;
     }
     
-    .action-btn {
-        padding: 10px 15px;
-        font-size: 0.9rem;
+    .card-center {
+        font-size: 1.2rem;
     }
     
-    .fish {
-        font-size: 1.5rem;
+    .tableau {
+        min-height: 300px;
     }
 }
