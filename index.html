@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaLife - 水族缸養魚遊戲</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- 頂部狀態欄 -->
+        <header class="status-bar">
+            <div class="resources">
+                <span class="resource" title="金幣">💰 <span id="coins">500</span></span>
+                <span class="resource" title="珍珠">💎 <span id="pearls">10</span></span>
+                <span class="resource" title="等級">📊 Lv.<span id="level">1</span></span>
+                <span class="resource" title="經驗值">✨ <span id="exp">0</span>/<span id="exp-needed">100</span></span>
+            </div>
+            <div class="header-buttons">
+                <button class="btn" id="shop-btn">🏪 商店</button>
+                <button class="btn" id="settings-btn">⚙️ 設定</button>
+            </div>
+        </header>
+
+        <!-- 水族箱區域 -->
+        <main class="aquarium" id="aquarium">
+            <div class="water">
+                <!-- 水波效果 -->
+                <div class="waves"></div>
+                <div class="waves waves-2"></div>
+                
+                <!-- 魚群會在這裡動態生成 -->
+                <div class="fish-container" id="fish-container"></div>
+                
+                <!-- 裝飾品 -->
+                <div class="decorations" id="decorations">
+                    <div class="decoration sand"></div>
+                    <div class="decoration seaweed seaweed-1">🌿</div>
+                    <div class="decoration seaweed seaweed-2">🌿</div>
+                    <div class="decoration rock rock-1">🪨</div>
+                    <div class="decoration rock rock-2">🪨</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部控制欄 -->
+        <footer class="control-bar">
+            <div class="water-quality">
+                <span>水質：</span>
+                <div class="quality-bar">
+                    <div class="quality-fill" id="water-quality" style="width: 80%"></div>
+                </div>
+                <span id="water-quality-text">80%</span>
+                <span class="quality-status" id="quality-status">良好</span>
+            </div>
+            <div class="actions">
+                <button class="action-btn" id="feed-btn" title="餵食">🐟 餵食</button>
+                <button class="action-btn" id="clean-btn" title="換水">💧 換水</button>
+                <button class="action-btn" id="clear-btn" title="清理">🧹 清理</button>
+                <button class="action-btn" id="sell-btn" title="撈魚">🕸️ 撈魚</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 商店Modal -->
+    <div class="modal" id="shop-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏪 商店</h2>
+                <button class="close-btn" id="close-shop">&times;</button>
+            </div>
+            <div class="shop-tabs">
+                <button class="tab-btn active" data-tab="fish">🐟 魚類</button>
+                <button class="tab-btn" data-tab="food">🍞 飼料</button>
+                <button class="tab-btn" data-tab="decor">🎨 裝飾</button>
+                <button class="tab-btn" data-tab="tank">🏠 魚缸</button>
+            </div>
+            <div class="shop-items" id="shop-items">
+                <!-- 商品會在這裡動態生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ 設定</h2>
+                <button class="close-btn" id="close-settings">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="save-slots">
+                    <h3>💾 存檔槽</h3>
+                    <div class="slots-container">
+                        <button class="slot-btn" data-slot="1">
+                            <span class="slot-label">存檔 1</span>
+                            <span class="slot-info" id="slot-1-info">空</span>
+                        </button>
+                        <button class="slot-btn" data-slot="2">
+                            <span class="slot-label">存檔 2</span>
+                            <span class="slot-info" id="slot-2-info">空</span>
+                        </button>
+                        <button class="slot-btn" data-slot="3">
+                            <span class="slot-label">存檔 3</span>
+                            <span class="slot-info" id="slot-3-info">空</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="settings-buttons">
+                    <button class="btn" id="save-game">💾 儲存到當前槽位</button>
+                    <button class="btn" id="load-game">📂 從當前槽位載入</button>
+                    <button class="btn btn-danger" id="reset-game">🗑️ 重置遊戲</button>
+                </div>
+                <div class="achievements-section">
+                    <h3>🏆 成就</h3>
+                    <div class="achievements-list" id="achievements-list">
+                        <!-- 成就會在這裡動態生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 訊息提示 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 魚類資訊面板 -->
+    <div class="fish-info-panel" id="fish-info-panel">
+        <div class="fish-info-header">
+            <span class="fish-info-emoji" id="fish-info-emoji">🐠</span>
+            <span class="fish-info-name" id="fish-info-name">金魚</span>
+            <button class="close-btn" id="close-fish-info">&times;</button>
+        </div>
+        <div class="fish-info-stats">
+            <div class="stat-row">
+                <span class="stat-label">飢餓度</span>
+                <div class="stat-bar">
+                    <div class="stat-fill hunger" id="fish-info-hunger" style="width: 100%"></div>
+                </div>
+                <span class="stat-value" id="fish-info-hunger-val">100%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">幸福度</span>
+                <div class="stat-bar">
+                    <div class="stat-fill happiness" id="fish-info-happiness" style="width: 100%"></div>
+                </div>
+                <span class="stat-value" id="fish-info-happiness-val">100%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">健康度</span>
+                <div class="stat-bar">
+                    <div class="stat-fill health" id="fish-info-health" style="width: 100%"></div>
+                </div>
+                <span class="stat-value" id="fish-info-health-val">100%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">年齡</span>
+                <span class="stat-text" id="fish-info-age">0秒</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">狀態</span>
+                <span class="stat-text" id="fish-info-status">幼年</span>
+            </div>
+        </div>
+        <div class="fish-info-actions">
+            <button class="btn" id="feed-single-fish">🍞 餵食</button>
+            <button class="btn btn-danger" id="sell-single-fish">💰 出售</button>
+        </div>
+    </div>
+
+    <script src="js/fish.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/shop.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

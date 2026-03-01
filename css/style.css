@@ -1,0 +1,751 @@
+/* AquaLife - 寫實風水族缸樣式 */
+
+:root {
+    --deep-blue: #0a1628;
+    --ocean-blue: #1a3a5c;
+    --light-blue: #2d5a87;
+    --sand: #d4a574;
+    --coral: #ff6b6b;
+    --gold: #ffd700;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background: linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #0a1628 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow: hidden;
+}
+
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+/* 頂部狀態欄 */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    margin-bottom: 10px;
+}
+
+.resources {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.resource {
+    font-size: 1.1rem;
+    padding: 8px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resource span {
+    font-weight: bold;
+    color: var(--gold);
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--light-blue);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    background: var(--ocean-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn-danger {
+    background: #c0392b;
+}
+
+.btn-danger:hover {
+    background: #a93226;
+}
+
+/* 水族箱 */
+.aquarium {
+    flex: 1;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 
+                inset 0 0 100px rgba(45, 90, 135, 0.3);
+}
+
+.water {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, 
+        #1e3a5f 0%, 
+        #152d4a 30%, 
+        #0d1f35 70%, 
+        #071520 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 水波動畫 */
+.waves {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 30px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="rgba(255,255,255,0.1)" d="M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z"/></svg>');
+    background-size: 50% 100%;
+    animation: waves 8s linear infinite;
+}
+
+.waves-2 {
+    top: 5px;
+    opacity: 0.5;
+    animation: waves 12s linear infinite reverse;
+}
+
+@keyframes waves {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* 魚群容器 */
+.fish-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* 魚 */
+.fish {
+    position: absolute;
+    font-size: 2rem;
+    transition: transform 0.5s ease;
+    animation: swim 10s ease-in-out infinite;
+    cursor: pointer;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.fish:hover {
+    transform: scale(1.2);
+}
+
+.fish.eating {
+    animation: eat 0.5s ease-in-out;
+}
+
+.fish.dying {
+    animation: die 2s ease-out forwards;
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+@keyframes swim {
+    0%, 100% { transform: translateX(0) scaleX(1); }
+    25% { transform: translateX(20px) translateY(-10px) scaleX(1); }
+    50% { transform: translateX(40px) translateY(5px) scaleX(1); }
+    75% { transform: translateX(20px) translateY(-5px) scaleX(1); }
+}
+
+.fish.swim-left {
+    animation-direction: reverse;
+    transform: scaleX(-1);
+}
+
+@keyframes eat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+}
+
+@keyframes die {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(50px) rotate(90deg); }
+}
+
+/* 裝飾品 */
+.decorations {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.decoration {
+    position: absolute;
+    pointer-events: none;
+}
+
+.sand {
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(180deg, transparent, rgba(212, 165, 116, 0.6));
+    border-radius: 50% 50% 0 0 / 20px 20px 0 0;
+}
+
+.seaweed {
+    font-size: 2.5rem;
+    bottom: 30px;
+    animation: sway 3s ease-in-out infinite;
+}
+
+.seaweed-1 { left: 10%; animation-delay: 0s; }
+.seaweed-2 { right: 15%; animation-delay: 1s; }
+
+@keyframes sway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+.rock {
+    font-size: 2rem;
+    bottom: 20px;
+}
+
+.rock-1 { left: 25%; }
+.rock-2 { right: 30%; }
+
+/* 底部控制欄 */
+.control-bar {
+    padding: 15px 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    margin-top: 10px;
+}
+
+.water-quality {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.quality-bar {
+    flex: 1;
+    height: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.quality-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--ocean-blue);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background: var(--light-blue);
+    transform: translateY(-2px);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #1b263b 0%, #0d1b2a 100%);
+    border-radius: 20px;
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid var(--glass-border);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: var(--coral);
+}
+
+/* 商店 */
+.shop-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: var(--ocean-blue);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background: var(--light-blue);
+    box-shadow: 0 0 10px rgba(45, 90, 135, 0.5);
+}
+
+.shop-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.shop-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.shop-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.shop-item .icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.shop-item .name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.shop-item .price {
+    color: var(--gold);
+    margin-bottom: 10px;
+}
+
+.shop-item .buy-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: var(--light-blue);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.shop-item .buy-btn:hover {
+    background: var(--ocean-blue);
+}
+
+.shop-item .buy-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+/* 存檔槽 */
+.save-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.slot-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slot-btn:hover {
+    background: rgba(45, 90, 135, 0.3);
+    border-color: var(--light-blue);
+    transform: translateY(-2px);
+}
+
+.slot-btn.empty {
+    border-style: dashed;
+    opacity: 0.7;
+}
+
+.slot-btn.empty:hover {
+    opacity: 1;
+}
+
+.slot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.slot-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.slot-date {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.slot-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.slot-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ocean-blue);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slot-actions button:hover {
+    background: var(--light-blue);
+}
+
+.slot-actions .delete-btn {
+    background: #c0392b;
+}
+
+.slot-actions .delete-btn:hover {
+    background: #a93226;
+}
+
+/* 成就系統 */
+.achievements-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.achievement-item.unlocked {
+    border-color: var(--gold);
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.achievement-item.locked {
+    opacity: 0.5;
+    filter: grayscale(0.8);
+}
+
+.achievement-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.achievement-icon {
+    font-size: 2.5rem;
+    min-width: 50px;
+    text-align: center;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.achievement-desc {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.achievement-progress {
+    margin-top: 8px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.achievement-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ocean-blue), var(--light-blue));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.achievement-item.unlocked .achievement-progress-fill {
+    background: linear-gradient(90deg, #f39c12, var(--gold));
+}
+
+/* 魚類資訊面板 */
+.fish-info-panel {
+    position: absolute;
+    background: linear-gradient(180deg, rgba(27, 38, 59, 0.95) 0%, rgba(13, 27, 42, 0.95) 100%);
+    border: 2px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 15px;
+    min-width: 200px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fish-info-panel .fish-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.fish-info-panel .fish-icon {
+    font-size: 2rem;
+}
+
+.fish-info-panel .fish-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--gold);
+}
+
+.fish-info-panel .fish-level {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: auto;
+}
+
+.fish-info-panel .fish-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fish-info-panel .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.fish-info-panel .stat-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.fish-info-panel .stat-value {
+    font-weight: bold;
+    color: var(--light-blue);
+}
+
+.fish-info-panel .stat-value.health {
+    color: #2ecc71;
+}
+
+.fish-info-panel .stat-value.hunger {
+    color: #f39c12;
+}
+
+.fish-info-panel .stat-value.happiness {
+    color: #e91e63;
+}
+
+.fish-info-panel .fish-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.fish-info-panel .fish-actions button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ocean-blue);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.fish-info-panel .fish-actions button:hover {
+    background: var(--light-blue);
+}
+
+.fish-info-panel .close-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.fish-info-panel .close-info:hover {
+    color: var(--coral);
+}
+
+/* 設定 */
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 訊息提示 */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2000;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+/* 響應式 */
+@media (max-width: 600px) {
+    .status-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .resources {
+        justify-content: center;
+    }
+    
+    .action-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .fish {
+        font-size: 1.5rem;
+    }
+}

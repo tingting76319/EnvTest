@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "minimax": {
+      "options": {
+        "baseURL": "https://api.minimax.io/v1"
+      },
+      "apiKey": "sk-api-b2IiihPCqDMdJu_dFbhPitlGPs1eCH-biBD4AMA5OIw1NyVBPJ_2U6RN4FCbhTyOQlbpT-nEcPHHNYe1tBK3jRgvQ2u7kFr-KqoNr_r3Yv0GYAE9PhMuB7E"
+    }
+  },
+  "models": {
+    "MiniMax-M2.1": {
+      "provider": "minimax",
+      "id": "MiniMax-M2.1"
+    }
+  },
+  "agents": {
+    "coder": {
+      "model": "MiniMax-M2.1"
+    }
+  }
+}
