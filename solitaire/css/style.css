@@ -1,0 +1,259 @@
+/* Solitaire - 接龍遊戲樣式 */
+
+:root {
+    --green-felt: #1b5e20;
+    --card-width: 70px;
+    --card-height: 100px;
+    --card-radius: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background: linear-gradient(135deg, #0d4d0d 0%, #1b5e20 50%, #0a3d0a 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.game-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* 標題區 */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.game-header h1 {
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat {
+    font-size: 1.1rem;
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 遊戲區域 */
+.game-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 收牌區與牌堆 */
+.stock-area, .foundations {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.foundations {
+    margin-bottom: 10px;
+}
+
+.foundation, .stock, .waste {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--card-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+}
+
+/* 牌疊區 */
+.tableau {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    min-height: 400px;
+}
+
+.pile {
+    width: var(--card-width);
+    min-height: var(--card-height);
+    position: relative;
+}
+
+/* 紙牌 */
+.card {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: #fff;
+    border-radius: var(--card-radius);
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+    font-weight: bold;
+    user-select: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.card.dragging {
+    opacity: 0.8;
+    z-index: 1000;
+}
+
+.card.red {
+    color: #e53935;
+}
+
+.card.black {
+    color: #212121;
+}
+
+/* 牌背 */
+.card.back {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 50%, #1565c0 100%);
+    border: 3px solid #fff;
+}
+
+.card.back::after {
+    content: '♦';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* 牌面數字 */
+.card-top, .card-bottom {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.card-bottom {
+    transform: rotate(180deg);
+}
+
+.card-center {
+    font-size: 1.8rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 牌疊重疊 */
+.pile .card {
+    position: absolute;
+}
+
+/* 勝利 Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #1b5e20 0%, #0d4d0d 100%);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    border: 3px solid #4caf50;
+}
+
+.modal-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.modal-content p {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+/* 響應式 */
+@media (max-width: 700px) {
+    :root {
+        --card-width: 45px;
+        --card-height: 65px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .card-top, .card-bottom {
+        font-size: 0.7rem;
+    }
+    
+    .card-center {
+        font-size: 1.2rem;
+    }
+    
+    .tableau {
+        min-height: 300px;
+    }
+}

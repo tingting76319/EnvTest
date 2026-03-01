@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接龍 Solitaire</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>♠️ 接龍 ♣️</h1>
+            <div class="stats">
+                <span class="stat">⏱️ <span id="timer">00:00</span></span>
+                <span class="stat">🔄 <span id="moves">0</span></span>
+                <span class="stat">🏆 <span id="score">0</span></span>
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="newGame()">🎮 新遊戲</button>
+                <button class="btn" onclick="undo()">↩️ 悔棋</button>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <!-- 收牌區 -->
+            <div class="foundations">
+                <div class="foundation" id="foundation-0" data-suit="♠">♠</div>
+                <div class="foundation" id="foundation-1" data-suit="♥">♥</div>
+                <div class="foundation" id="foundation-2" data-suit="♣">♣</div>
+                <div class="foundation" id="foundation-3" data-suit="♦">♦</div>
+            </div>
+
+            <!-- 牌堆與回收區 -->
+            <div class="stock-area">
+                <div class="stock" id="stock" onclick="drawCards()">
+                    <div class="card back"></div>
+                </div>
+                <div class="waste" id="waste"></div>
+            </div>
+
+            <!-- 遊戲牌疊 -->
+            <div class="tableau" id="tableau">
+                <div class="pile" id="pile-0"></div>
+                <div class="pile" id="pile-1"></div>
+                <div class="pile" id="pile-2"></div>
+                <div class="pile" id="pile-3"></div>
+                <div class="pile" id="pile-4"></div>
+                <div class="pile" id="pile-5"></div>
+                <div class="pile" id="pile-6"></div>
+            </div>
+        </div>
+
+        <!-- 勝利訊息 -->
+        <div class="modal" id="win-modal">
+            <div class="modal-content">
+                <h2>🎉 恭喜過關！</h2>
+                <p>用時：<span id="final-time"></span></p>
+                <p>移動：<span id="final-moves"></span></p>
+                <p>得分：<span id="final-score"></span></p>
+                <button class="btn" onclick="newGame()">再玩一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
